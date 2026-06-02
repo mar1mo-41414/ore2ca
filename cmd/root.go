@@ -32,5 +32,6 @@ func init() {
 		newRevokeCmd(),
 		newDeleteCmd(),
 		newDockerCmd(),
+		newWebCmd(),
 	)
 }

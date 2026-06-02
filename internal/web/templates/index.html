@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ore2ca — 俺俺CA</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #222638;
+    --border: #2e3347; --accent: #4f9cf9; --accent2: #6ee7b7;
+    --danger: #f87171; --warn: #fbbf24;
+    --text: #e2e8f0; --muted: #7c8ba1;
+    --radius: 8px; --shadow: 0 2px 12px rgba(0,0,0,.4);
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+
+  /* layout */
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 12px; height: 56px; }
+  header h1 { font-size: 18px; font-weight: 700; letter-spacing: .5px; }
+  header span { color: var(--muted); font-size: 12px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; }
+  .dot.off { background: var(--danger); }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* card */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .card h2 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 14px; }
+
+  /* CA info */
+  .ca-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .ca-field label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px; }
+  .ca-field span { font-size: 14px; font-weight: 500; word-break: break-all; }
+
+  /* issue form */
+  .form-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+  .form-group label { font-size: 12px; color: var(--muted); }
+  input[type=text], input[type=number] {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); padding: 8px 10px; font-size: 13px; width: 100%; outline: none;
+    transition: border-color .15s;
+  }
+  input:focus { border-color: var(--accent); }
+  .san-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .san-row { display: flex; gap: 6px; }
+  .san-row input { flex: 1; }
+
+  /* buttons */
+  button {
+    border: none; border-radius: 6px; cursor: pointer; font-size: 13px;
+    font-weight: 500; padding: 8px 14px; transition: opacity .15s;
+  }
+  button:hover { opacity: .85; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-danger  { background: var(--danger); color: #fff; }
+  .btn-warn    { background: var(--warn); color: #111; }
+  .btn-ghost   { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-sm      { padding: 5px 10px; font-size: 12px; }
+  .btn-add-san { align-self: flex-start; margin-top: 4px; }
+
+  /* table */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .domain { font-weight: 600; }
+  .badge { display: inline-block; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
+  .badge-ok   { background: rgba(110,231,183,.15); color: var(--accent2); }
+  .badge-rev  { background: rgba(248,113,113,.15); color: var(--danger); }
+  .badge-exp  { background: rgba(251,191,36,.15);  color: var(--warn); }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* download menu */
+  .dl-wrap { position: relative; display: inline-block; }
+  .dl-menu { position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); z-index: 10; min-width: 160px; display: none; box-shadow: var(--shadow); }
+  .dl-menu.open { display: block; }
+  .dl-menu a { display: block; padding: 8px 14px; font-size: 13px; color: var(--text); }
+  .dl-menu a:hover { background: rgba(255,255,255,.05); }
+
+  /* toast */
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 18px; font-size: 13px; max-width: 320px; box-shadow: var(--shadow); opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 100; }
+  #toast.show { opacity: 1; }
+  #toast.err { border-color: var(--danger); color: var(--danger); }
+
+  /* empty state */
+  .empty { text-align: center; color: var(--muted); padding: 32px; }
+
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="dot" id="ca-dot"></div>
+  <h1>ore2ca</h1>
+  <span id="ca-header-name">読み込み中...</span>
+</header>
+<main>
+
+  <!-- CA Info -->
+  <div class="card" id="ca-card">
+    <h2>認証局 (CA)</h2>
+    <div class="ca-grid" id="ca-info">
+      <div class="ca-field"><label>Common Name</label><span id="ci-cn">—</span></div>
+      <div class="ca-field"><label>Organization</label><span id="ci-org">—</span></div>
+      <div class="ca-field"><label>Country</label><span id="ci-country">—</span></div>
+      <div class="ca-field"><label>証明書パス</label><span id="ci-path" style="font-size:12px;color:var(--muted)">—</span></div>
+    </div>
+  </div>
+
+  <!-- Issue Form -->
+  <div class="card">
+    <h2>証明書を発行</h2>
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="form-group" style="flex:2;min-width:200px">
+        <label>ドメイン / IP *</label>
+        <input type="text" id="issue-domain" placeholder="localhost, myapp.local, 192.168.1.x, *.home.arpa">
+      </div>
+      <div class="form-group" style="max-width:100px">
+        <label>有効期間（日）</label>
+        <input type="number" id="issue-days" placeholder="825" min="1" max="3650">
+      </div>
+      <button class="btn-primary" id="btn-issue" onclick="issueCert()">発行</button>
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--muted)">追加 SAN（IP・ドメイン）</label>
+      <div class="san-list" id="san-list">
+        <div class="san-row">
+          <input type="text" placeholder="例: 192.168.11.8">
+          <button class="btn-ghost btn-sm" onclick="removeSAN(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-ghost btn-sm btn-add-san" onclick="addSAN()">+ SAN を追加</button>
+    </div>
+  </div>
+
+  <!-- Cert List -->
+  <div class="card">
+    <h2>発行済み証明書 <span id="cert-count" style="font-weight:400;text-transform:none;letter-spacing:0"></span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>ドメイン</th><th>発行日</th><th>有効期限</th><th>状態</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="cert-tbody">
+          <tr><td colspan="6" class="empty">読み込み中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+<div id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ---- bootstrap ----
+async function init() {
+  await loadCA();
+  await loadCerts();
+}
+
+async function loadCA() {
+  const r = await fetch('/api/ca');
+  const d = await r.json();
+  $('ca-dot').className = 'dot' + (d.exists ? '' : ' off');
+  $('ca-header-name').textContent = d.exists ? d.common_name : 'CA未作成';
+  $('ci-cn').textContent      = d.common_name   || '—';
+  $('ci-org').textContent     = d.organization  || '—';
+  $('ci-country').textContent = d.country       || '—';
+  $('ci-path').textContent    = d.cert_path     || '—';
+}
+
+async function loadCerts() {
+  const r = await fetch('/api/certs');
+  const certs = await r.json();
+  const tbody = $('cert-tbody');
+  if (!certs.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">証明書がありません</td></tr>';
+    $('cert-count').textContent = '';
+    return;
+  }
+  $('cert-count').textContent = `(${certs.length})`;
+  const now = Date.now();
+  tbody.innerHTML = certs.map(c => {
+    const exp  = new Date(c.expires_at);
+    const soon = exp - now < 30*24*3600*1000;
+    let badge;
+    if (c.revoked)        badge = '<span class="badge badge-rev">失効</span>';
+    else if (exp < now)   badge = '<span class="badge badge-exp">期限切れ</span>';
+    else if (soon)        badge = '<span class="badge badge-exp">期限切れ間近</span>';
+    else                  badge = '<span class="badge badge-ok">有効</span>';
+
+    const domainEnc = encodeURIComponent(c.domain);
+    const dlMenu = `
+      <div class="dl-wrap">
+        <button class="btn-ghost btn-sm" onclick="toggleDL(this)">↓ DL</button>
+        <div class="dl-menu">
+          <a href="/download/${domainEnc}/cert.crt">cert.crt</a>
+          <a href="/download/${domainEnc}/cert.key">cert.key</a>
+          <a href="/download/${domainEnc}/chain.crt">chain.crt</a>
+          <a href="/download/${domainEnc}/fullchain.crt">fullchain.crt</a>
+        </div>
+      </div>`;
+    const revokeBtn = c.revoked ? '' :
+      `<button class="btn-warn btn-sm" onclick="revokeCert('${c.id}')">失効</button>`;
+    const deleteBtn =
+      `<button class="btn-danger btn-sm" onclick="deleteCert('${c.id}', '${escHtml(c.domain)}')">削除</button>`;
+
+    return `<tr>
+      <td style="font-family:monospace;color:var(--muted)">${c.id}</td>
+      <td class="domain">${escHtml(c.domain)}</td>
+      <td style="color:var(--muted)">${fmtDate(c.issued_at)}</td>
+      <td style="color:${soon && !c.revoked ? 'var(--warn)' : 'inherit'}">${fmtDate(c.expires_at)}</td>
+      <td>${badge}</td>
+      <td><div class="actions">${dlMenu}${revokeBtn}${deleteBtn}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- issue ----
+async function issueCert() {
+  const domain = $('issue-domain').value.trim();
+  if (!domain) { toast('ドメインを入力してください', true); return; }
+  const days = parseInt($('issue-days').value) || 0;
+  const sanInputs = document.querySelectorAll('#san-list input');
+  const extra_sans = [...sanInputs].map(i => i.value.trim()).filter(Boolean);
+
+  const btn = $('btn-issue');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>発行中...';
+
+  try {
+    const r = await fetch('/api/issue', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({domain, extra_sans, days})
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error, true); return; }
+    toast(`✓ ${d.domain} の証明書を発行しました`);
+    $('issue-domain').value = '';
+    $('issue-days').value = '';
+    document.querySelectorAll('#san-list input').forEach(i => i.value = '');
+    await loadCerts();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '発行';
+  }
+}
+
+// ---- revoke ----
+async function revokeCert(id) {
+  if (!confirm(`証明書 ${id} を失効させますか？`)) return;
+  const r = await fetch(`/api/revoke/${id}`, {method:'POST'});
+  const d = await r.json();
+  if (!r.ok) { toast(d.error, true); return; }
+  toast(`✓ 証明書 ${id} を失効しました`);
+  await loadCerts();
+}
+
+// ---- delete ----
+async function deleteCert(id, domain) {
+  if (!confirm(`「${domain}」の証明書を削除しますか？\nこの操作は取り消せません。`)) return;
+  const r = await fetch(`/api/certs/${id}`, {method:'DELETE'});
+  const d = await r.json();
+  if (!r.ok) { toast(d.error, true); return; }
+  toast(`✓ 証明書を削除しました`);
+  await loadCerts();
+}
+
+// ---- SAN helpers ----
+function addSAN() {
+  const row = document.createElement('div');
+  row.className = 'san-row';
+  row.innerHTML = '<input type="text" placeholder="例: 192.168.11.8"><button class="btn-ghost btn-sm" onclick="removeSAN(this)">✕</button>';
+  $('san-list').appendChild(row);
+}
+function removeSAN(btn) {
+  const rows = document.querySelectorAll('#san-list .san-row');
+  if (rows.length > 1) btn.closest('.san-row').remove();
+  else btn.previousElementSibling.value = '';
+}
+
+// ---- download menu ----
+function toggleDL(btn) {
+  const menu = btn.nextElementSibling;
+  const isOpen = menu.classList.contains('open');
+  document.querySelectorAll('.dl-menu.open').forEach(m => m.classList.remove('open'));
+  if (!isOpen) {
+    menu.classList.add('open');
+    setTimeout(() => document.addEventListener('click', () => menu.classList.remove('open'), {once:true}), 0);
+  }
+}
+
+// ---- utils ----
+function fmtDate(iso) {
+  return iso ? new Date(iso).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}) : '—';
+}
+function escHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+let toastTimer;
+function toast(msg, err=false) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'show' + (err ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+init();
+</script>
+</body>
+</html>

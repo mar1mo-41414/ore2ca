@@ -151,6 +151,7 @@ ore2ca issue myapp.local --san 10.0.0.5 --san 192.168.1.10  # 複数SAN指定可
 | `ore2ca docker nginx` | nginx 向け Docker Compose 設定例を出力 |
 | `ore2ca docker caddy` | Caddy 向け Docker Compose 設定例を出力 |
 | `ore2ca docker traefik` | Traefik 向け Docker Compose 設定例を出力 |
+| `ore2ca web` | ローカル管理 Web UI を起動（デフォルト: `http://localhost:8080`） |
 
 ---
 
