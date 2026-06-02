@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	"github.com/mar1mo-41414/ore2ca/internal/config"
 )
 
 // installNSS tries to register the CA cert into Firefox NSS databases.
@@ -38,7 +40,7 @@ func installNSS(certPath string) (bool, error) {
 
 func findNSSDBs() []string {
 	var dirs []string
-	home, err := os.UserHomeDir()
+	home, err := config.EffectiveUserHome()
 	if err != nil {
 		return nil
 	}

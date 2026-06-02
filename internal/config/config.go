@@ -38,14 +38,19 @@ func DefaultConfig() *Config {
 	}
 }
 
-func HomeDir() (string, error) {
-	// sudo 実行時は元ユーザーのホームを使う
+// EffectiveUserHome returns the real user's home directory.
+// When running with sudo, it returns the original user's home via SUDO_USER.
+func EffectiveUserHome() (string, error) {
 	if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
 		if u, err := user.Lookup(sudoUser); err == nil {
-			return filepath.Join(u.HomeDir, ".ore2ca"), nil
+			return u.HomeDir, nil
 		}
 	}
-	home, err := os.UserHomeDir()
+	return os.UserHomeDir()
+}
+
+func HomeDir() (string, error) {
+	home, err := EffectiveUserHome()
 	if err != nil {
 		return "", err
 	}

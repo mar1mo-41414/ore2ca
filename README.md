@@ -35,9 +35,16 @@ go install github.com/mar1mo-41414/ore2ca@latest
 または手元でビルド：
 
 ```bash
+# macOS / Linux
 git clone https://github.com/mar1mo-41414/ore2ca
 cd ore2ca
 go build -o ore2ca .
+
+# Windows (PowerShell)
+git clone https://github.com/mar1mo-41414/ore2ca
+cd ore2ca
+go build -o ore2ca.exe .
+.\ore2ca.exe init
 ```
 
 ---
