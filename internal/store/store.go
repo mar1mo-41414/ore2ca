@@ -59,6 +59,7 @@ func (s *Store) revokedDir() string { return filepath.Join(s.baseDir, "revoked")
 func (s *Store) CACertPath() string { return filepath.Join(s.caDir(), "root.crt") }
 func (s *Store) CAKeyPath() string  { return filepath.Join(s.caDir(), "root.key") }
 func (s *Store) SerialPath() string { return filepath.Join(s.caDir(), "serial") }
+func (s *Store) CRLPath() string    { return filepath.Join(s.caDir(), "crl.pem") }
 
 func (s *Store) CAExists() bool {
 	_, err := os.Stat(s.CACertPath())

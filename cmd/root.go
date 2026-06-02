@@ -31,6 +31,7 @@ func init() {
 		newIssueCmd(),
 		newRenewCmd(),
 		newShowCmd(),
+		newExportCmd(),
 		newListCmd(),
 		newRevokeCmd(),
 		newDeleteCmd(),

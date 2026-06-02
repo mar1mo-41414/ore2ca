@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha1" //nolint:gosec // SubjectKeyId の計算に SHA-1 を使用（RFC 5280 Section 4.2.1.2）
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
@@ -26,6 +27,13 @@ func Init(cfg *config.Config, s *store.Store) error {
 		return err
 	}
 
+	// SubjectKeyId: RFC 5280 Section 4.2.1.2 — SHA-1 of the DER-encoded SubjectPublicKeyInfo
+	pubDER, err := x509.MarshalPKIXPublicKey(&key.PublicKey)
+	if err != nil {
+		return err
+	}
+	skid := sha1.Sum(pubDER) //nolint:gosec
+
 	now := time.Now()
 	template := &x509.Certificate{
 		SerialNumber: serial,
@@ -34,6 +42,7 @@ func Init(cfg *config.Config, s *store.Store) error {
 			Organization: []string{cfg.CA.Organization},
 			Country:      []string{cfg.CA.Country},
 		},
+		SubjectKeyId:          skid[:],
 		NotBefore:             now,
 		NotAfter:              now.AddDate(cfg.CA.ValidYears, 0, 0),
 		IsCA:                  true,

@@ -161,8 +161,9 @@ ore2ca issue myapp.local --san 10.0.0.5 --san 192.168.1.10  # 複数SAN指定可
 | `ore2ca issue <domain>` | サーバ証明書を発行 |
 | `ore2ca renew <id>` | 証明書を同じドメイン・SANで更新 |
 | `ore2ca show <id>` | 証明書の詳細情報を表示 |
+| `ore2ca export <id>` | 証明書を PKCS#12 (.pfx) 形式でエクスポート |
 | `ore2ca list` | 発行済み証明書の一覧 |
-| `ore2ca revoke <id>` | 証明書を失効 |
+| `ore2ca revoke <id>` | 証明書を失効（CRL を自動更新） |
 | `ore2ca delete <id>` | 証明書を削除 |
 | `ore2ca docker nginx` | nginx 向け Docker Compose 設定例を出力 |
 | `ore2ca docker caddy` | Caddy 向け Docker Compose 設定例を出力 |
@@ -223,7 +224,8 @@ localhost, https://192.168.11.8 {
 ├── ca/
 │   ├── root.crt      ルートCA証明書
 │   ├── root.key      秘密鍵（大切に）
-│   └── serial        シリアル番号管理
+│   ├── serial        シリアル番号管理
+│   └── crl.pem       証明書失効リスト（revoke 時に自動更新）
 ├── certs/
 │   ├── localhost/
 │   ├── myapp.local/
@@ -255,6 +257,19 @@ ore2ca issue jellyfin.home.arpa
 ore2ca issue '*.home.arpa'
 # *.home.arpa と home.arpa の両方をカバー
 ```
+
+### PKCS#12 (.pfx) にエクスポートする
+
+Windows (IIS, mmc) や Java アプリへのインポートに使用できます。
+
+```bash
+ore2ca export <id>                        # <domain>.pfx を出力（パスワードなし）
+ore2ca export <id> --out server.pfx       # 出力先を指定
+ore2ca export <id> --password secretpass  # パスワードを設定
+ore2ca export <id> --legacy               # Java 8 以前など旧ツール向け（3DES）
+```
+
+---
 
 ### 証明書の詳細を確認する
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/mar1mo-41414/ore2ca/internal/ca"
 	"github.com/mar1mo-41414/ore2ca/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -39,6 +40,14 @@ func newRevokeCmd() *cobra.Command {
 			}
 
 			fmt.Printf("✓ 証明書を失効させました: ID=%s, ドメイン=%s\n", meta.ID, meta.Domain)
+
+			// CRL を自動再生成
+			if err := ca.BuildCRL(s); err != nil {
+				fmt.Printf("⚠ CRL の更新に失敗しました: %v\n", err)
+			} else {
+				fmt.Printf("  CRL:        %s\n", s.CRLPath())
+			}
+
 			return nil
 		},
 	}
