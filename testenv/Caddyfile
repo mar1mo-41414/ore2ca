@@ -1,0 +1,5 @@
+localhost {
+    tls /certs/cert.crt /certs/cert.key
+
+    respond "Hello from Ore2CA! HTTPS is working. 🎉" 200
+}
