@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: darwin
+            arch: amd64
+            suffix: ""
+            archive: tar.gz
+          - os: darwin
+            arch: arm64
+            suffix: ""
+            archive: tar.gz
+          - os: linux
+            arch: amd64
+            suffix: ""
+            archive: tar.gz
+          - os: linux
+            arch: arm64
+            suffix: ""
+            archive: tar.gz
+          - os: windows
+            arch: amd64
+            suffix: ".exe"
+            archive: zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: "0"
+        run: |
+          go build -trimpath -ldflags="-s -w -X main.version=${{ github.ref_name }}" \
+            -o ore2ca${{ matrix.suffix }} .
+
+      - name: Create archive (tar.gz)
+        if: matrix.archive == 'tar.gz'
+        run: |
+          ASSET_NAME="ore2ca_${{ github.ref_name }}_${{ matrix.os }}_${{ matrix.arch }}.tar.gz"
+          tar czf "$ASSET_NAME" ore2ca${{ matrix.suffix }}
+          echo "ASSET_NAME=$ASSET_NAME" >> $GITHUB_ENV
+
+      - name: Create archive (zip)
+        if: matrix.archive == 'zip'
+        run: |
+          ASSET_NAME="ore2ca_${{ github.ref_name }}_${{ matrix.os }}_${{ matrix.arch }}.zip"
+          zip "$ASSET_NAME" ore2ca${{ matrix.suffix }}
+          echo "ASSET_NAME=$ASSET_NAME" >> $GITHUB_ENV
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ore2ca_${{ matrix.os }}_${{ matrix.arch }}
+          path: ${{ env.ASSET_NAME }}
+          retention-days: 1
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          files: dist/*

@@ -46,11 +46,25 @@ ore2ca issue localhost         # 証明書を発行する
 
 ## インストール
 
+### バイナリをダウンロード（推奨）
+
+[Releases ページ](https://github.com/mar1mo-41414/ore2ca/releases/latest) から OS / アーキテクチャに合ったアーカイブをダウンロードして展開し、`PATH` の通ったディレクトリに置くだけです。
+
+| ファイル名 | 対象 |
+|---|---|
+| `ore2ca_vX.Y_darwin_arm64.tar.gz` | macOS Apple Silicon |
+| `ore2ca_vX.Y_darwin_amd64.tar.gz` | macOS Intel |
+| `ore2ca_vX.Y_linux_amd64.tar.gz` | Linux x86_64 |
+| `ore2ca_vX.Y_linux_arm64.tar.gz` | Linux ARM64 |
+| `ore2ca_vX.Y_windows_amd64.zip` | Windows x64 |
+
+### go install
+
 ```bash
 go install github.com/mar1mo-41414/ore2ca@latest
 ```
 
-または手元でビルド：
+### 手元でビルド
 
 ```bash
 # macOS / Linux

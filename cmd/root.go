@@ -14,7 +14,8 @@ var rootCmd = &cobra.Command{
 HTTPS証明書の発行・信頼登録・管理をワンストップで行うツールです。`,
 }
 
-func Execute() {
+func Execute(version string) {
+	rootCmd.Version = version
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
