@@ -312,6 +312,27 @@ ore2ca import --cert root.crt --trust
 
 ---
 
+## OCSP レスポンダ（別ツール）
+
+`ore2ca revoke` を実行すると `~/.ore2ca/ca/crl.pem` が更新されますが、
+ブラウザや HTTP クライアントが OCSP で失効確認を行いたい場合は、
+別プロジェクトの **ore2ca-ocsp** を使えます。
+
+```bash
+# インストール
+go install github.com/mar1mo-41414/ore2ca-ocsp@latest
+
+# 起動（ore2ca の ~/.ore2ca を自動参照）
+ore2ca-ocsp
+```
+
+ore2ca とは独立したバイナリで、ore2ca-ocsp を起動しておくと
+`ore2ca revoke` の結果を**再起動なしで即時反映**します。
+
+> 詳細は [ore2ca-ocsp リポジトリ](https://github.com/mar1mo-41414/ore2ca-ocsp) を参照してください。
+
+---
+
 ## 技術仕様
 
 - **言語**: Go 1.22+
