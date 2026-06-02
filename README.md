@@ -91,6 +91,7 @@ ore2ca issue '*.home.arpa'       # ワイルドカードも対応
 | コマンド | 説明 |
 |---|---|
 | `ore2ca init` | ローカル CA を作成 |
+| `ore2ca import --cert <path>` | 別PCで作成したCA証明書をインポート |
 | `ore2ca trust` | OS / Firefox に CA を信頼登録 |
 | `ore2ca issue <domain>` | サーバ証明書を発行 |
 | `ore2ca list` | 発行済み証明書の一覧 |
@@ -166,6 +167,19 @@ ore2ca issue jellyfin.home.arpa
 ore2ca issue '*.home.arpa'
 # *.home.arpa と home.arpa の両方をカバー
 ```
+
+### テスト端末に CA を信頼登録する
+
+開発機とは別のPC・スマートフォン等で俺俺証明書のサイトにアクセスしたい場合、  
+CA証明書（`~/.ore2ca/ca/root.crt`）をコピーしてインポートするだけです。
+
+```bash
+# テスト端末上で実行
+ore2ca import --cert root.crt --trust
+# ブラウザを再起動すれば完了
+```
+
+`--trust` を省いて後から `ore2ca trust` を個別に実行することもできます。
 
 ---
 
