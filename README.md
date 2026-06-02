@@ -77,6 +77,20 @@ ore2ca init
 
 `~/.ore2ca/ca/` にルートCA証明書と秘密鍵が生成されます。
 
+CA名や組織名はオプションで指定できます：
+
+```bash
+ore2ca init --cn "My Local CA" --org "MyCompany" --country JP --years 10
+```
+
+| オプション | デフォルト値 | 説明 |
+|---|---|---|
+| `--cn` | `Ore2CA Local Root CA` | CA の Common Name |
+| `--org` | `Ore2CA` | 組織名 |
+| `--country` | `JP` | 国コード（2文字） |
+| `--years` | `10` | CA 証明書の有効期間（年） |
+| `--force` | - | 既存の CA を上書きする |
+
 ### 2. OS とブラウザに信頼登録する
 
 ```bash
