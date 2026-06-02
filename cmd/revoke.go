@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ore2ca/ore2ca/internal/store"
+	"github.com/mar1mo-41414/ore2ca/internal/store"
 	"github.com/spf13/cobra"
 )
 

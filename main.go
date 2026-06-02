@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ore2ca/ore2ca/cmd"
+import "github.com/mar1mo-41414/ore2ca/cmd"
 
 func main() {
 	cmd.Execute()

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ore2ca/ore2ca/internal/config"
+	"github.com/mar1mo-41414/ore2ca/internal/config"
 )
 
 type CertMeta struct {

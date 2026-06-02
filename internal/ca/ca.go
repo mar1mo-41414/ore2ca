@@ -11,8 +11,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/ore2ca/ore2ca/internal/config"
-	"github.com/ore2ca/ore2ca/internal/store"
+	"github.com/mar1mo-41414/ore2ca/internal/config"
+	"github.com/mar1mo-41414/ore2ca/internal/store"
 )
 
 func Init(cfg *config.Config, s *store.Store) error {

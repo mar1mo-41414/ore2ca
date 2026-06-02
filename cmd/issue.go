@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/ore2ca/ore2ca/internal/ca"
-	"github.com/ore2ca/ore2ca/internal/config"
-	"github.com/ore2ca/ore2ca/internal/store"
+	"github.com/mar1mo-41414/ore2ca/internal/ca"
+	"github.com/mar1mo-41414/ore2ca/internal/config"
+	"github.com/mar1mo-41414/ore2ca/internal/store"
 	"github.com/spf13/cobra"
 )
 

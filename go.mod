@@ -1,4 +1,4 @@
-module github.com/ore2ca/ore2ca
+module github.com/mar1mo-41414/ore2ca
 
 go 1.25.0
 

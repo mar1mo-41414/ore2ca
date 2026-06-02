@@ -1,6 +1,6 @@
 package trust
 
-import "github.com/ore2ca/ore2ca/internal/store"
+import "github.com/mar1mo-41414/ore2ca/internal/store"
 
 type Result struct {
 	OS      bool

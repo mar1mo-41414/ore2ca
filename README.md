@@ -29,13 +29,13 @@ ore2ca issue localhost         # 証明書を発行する
 ## インストール
 
 ```bash
-go install github.com/ore2ca/ore2ca@latest
+go install github.com/mar1mo-41414/ore2ca@latest
 ```
 
 または手元でビルド：
 
 ```bash
-git clone https://github.com/ore2ca/ore2ca
+git clone https://github.com/mar1mo-41414/ore2ca
 cd ore2ca
 go build -o ore2ca .
 ```
