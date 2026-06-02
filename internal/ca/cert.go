@@ -88,6 +88,7 @@ func Issue(domain string, cfg *config.Config, s *store.Store, extraSANs ...strin
 	meta := &store.CertMeta{
 		ID:        fmt.Sprintf("%04d", serial),
 		Domain:    domain,
+		SANs:      extraSANs,
 		IssuedAt:  now,
 		ExpiresAt: notAfter,
 		Serial:    fmt.Sprintf("%d", serial),

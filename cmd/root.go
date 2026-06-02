@@ -29,6 +29,8 @@ func init() {
 		newTrustCmd(),
 		newUntrustCmd(),
 		newIssueCmd(),
+		newRenewCmd(),
+		newShowCmd(),
 		newListCmd(),
 		newRevokeCmd(),
 		newDeleteCmd(),

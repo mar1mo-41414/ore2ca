@@ -159,6 +159,8 @@ ore2ca issue myapp.local --san 10.0.0.5 --san 192.168.1.10  # 複数SAN指定可
 | `ore2ca trust` | OS / ブラウザに CA を信頼登録 |
 | `ore2ca untrust` | OS / ブラウザから CA の信頼登録を削除 |
 | `ore2ca issue <domain>` | サーバ証明書を発行 |
+| `ore2ca renew <id>` | 証明書を同じドメイン・SANで更新 |
+| `ore2ca show <id>` | 証明書の詳細情報を表示 |
 | `ore2ca list` | 発行済み証明書の一覧 |
 | `ore2ca revoke <id>` | 証明書を失効 |
 | `ore2ca delete <id>` | 証明書を削除 |
@@ -253,6 +255,24 @@ ore2ca issue jellyfin.home.arpa
 ore2ca issue '*.home.arpa'
 # *.home.arpa と home.arpa の両方をカバー
 ```
+
+### 証明書の詳細を確認する
+
+```bash
+ore2ca list               # ID を確認
+ore2ca show <id>          # SAN・有効期限・アルゴリズムなどを詳細表示
+```
+
+### 期限切れ前に証明書を更新する
+
+```bash
+ore2ca renew <id>                 # 同じドメイン・SANで再発行（有効期間はデフォルト値）
+ore2ca renew <id> --days 90       # 有効期間を変えて再発行
+```
+
+既存の証明書ファイルが上書きされるため、サーバ側の設定変更は不要です。
+
+---
 
 ### 開発終了時にクリーンアップする
 

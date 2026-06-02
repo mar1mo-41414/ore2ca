@@ -15,6 +15,7 @@ import (
 type CertMeta struct {
 	ID        string    `json:"id"`
 	Domain    string    `json:"domain"`
+	SANs      []string  `json:"sans,omitempty"` // extra SANs passed to ore2ca issue --san
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 	Serial    string    `json:"serial"`
