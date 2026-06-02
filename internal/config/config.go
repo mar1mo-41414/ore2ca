@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"os/user"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
@@ -38,6 +39,12 @@ func DefaultConfig() *Config {
 }
 
 func HomeDir() (string, error) {
+	// sudo 実行時は元ユーザーのホームを使う
+	if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
+		if u, err := user.Lookup(sudoUser); err == nil {
+			return filepath.Join(u.HomeDir, ".ore2ca"), nil
+		}
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

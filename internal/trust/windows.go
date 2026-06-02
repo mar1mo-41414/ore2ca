@@ -7,47 +7,49 @@ import (
 	"encoding/pem"
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/mar1mo-41414/ore2ca/internal/store"
-	"golang.org/x/sys/windows/registry"
 )
 
 func installPlatform(s *store.Store) (*Result, error) {
 	r := &Result{}
-	certPath := s.CACertPath()
-
-	if err := installWindowsRoot(certPath); err != nil {
+	if err := installWindowsRoot(s.CACertPath()); err != nil {
 		r.OSErr = err
 	} else {
 		r.OS = true
 	}
-
-	r.Firefox, r.FFErr = installNSS(certPath)
+	r.Firefox, r.FFErr = installNSS(s.CACertPath())
 	return r, nil
 }
 
 func installWindowsRoot(certPath string) error {
-	data, err := os.ReadFile(certPath)
+	cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command",
+		fmt.Sprintf(`Import-Certificate -FilePath "%s" -CertStoreLocation Cert:\LocalMachine\Root`, certPath))
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("Import-Certificate: %w\n%s", err, out)
+	}
+	return nil
+}
+
+func uninstallPlatform(s *store.Store) error {
+	data, err := os.ReadFile(s.CACertPath())
 	if err != nil {
 		return err
 	}
 	block, _ := pem.Decode(data)
 	if block == nil {
-		return fmt.Errorf("invalid PEM")
+		return fmt.Errorf("CA証明書のPEM解析に失敗しました")
 	}
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		return err
 	}
-
-	store, err := x509.SystemCertPool()
-	if err != nil {
-		return err
+	cn := cert.Subject.CommonName
+	cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command",
+		fmt.Sprintf(`Get-ChildItem Cert:\LocalMachine\Root | Where-Object { $_.Subject -like "*%s*" } | Remove-Item`, cn))
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("Remove-Item: %w\n%s", err, out)
 	}
-	store.AddCert(cert)
 	return nil
-}
-
-func uninstallPlatform(s *store.Store) error {
-	return fmt.Errorf("Windows uninstall: please remove 'Ore2CA Local Root CA' from certmgr.msc manually")
 }
