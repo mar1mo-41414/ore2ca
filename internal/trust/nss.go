@@ -12,7 +12,7 @@ import (
 func installNSS(certPath string) (bool, error) {
 	certutil, err := exec.LookPath("certutil")
 	if err != nil {
-		return false, fmt.Errorf("certutil not found (install libnss3-tools or nss-tools)")
+		return false, certutilNotFoundError()
 	}
 
 	dbs := findNSSDBs()
@@ -58,6 +58,18 @@ func findNSSDBs() []string {
 		}
 	}
 	return dirs
+}
+
+func certutilNotFoundError() error {
+	switch runtime.GOOS {
+	case "darwin":
+		return fmt.Errorf("certutil が見つかりません。以下を実行してインストールしてください:\n\n    brew install nss\n\nインストール後、再度 ore2ca trust を実行してください。")
+	case "linux":
+		return fmt.Errorf("certutil が見つかりません。以下を実行してインストールしてください:\n\n    # Debian/Ubuntu:\n    sudo apt install libnss3-tools\n\n    # Fedora/RHEL:\n    sudo dnf install nss-tools\n\n    # Arch:\n    sudo pacman -S nss\n\nインストール後、再度 ore2ca trust を実行してください。")
+	case "windows":
+		return fmt.Errorf("certutil が見つかりません。Firefox NSS への登録には certutil が必要です。")
+	}
+	return fmt.Errorf("certutil not found")
 }
 
 func nssCandidates(home string) []string {

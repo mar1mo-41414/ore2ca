@@ -37,11 +37,16 @@ func newTrustCmd() *cobra.Command {
 			if result.Firefox {
 				fmt.Println("✓ Firefox NSS: 登録完了")
 			} else if result.FFErr != nil {
-				fmt.Printf("  Firefox NSS: スキップ - %v\n", result.FFErr)
+				fmt.Printf("✗ Firefox NSS: 登録失敗\n\n%v\n", result.FFErr)
 			}
 
 			if !result.OS {
-				return fmt.Errorf("OS信頼登録に失敗しました")
+				return fmt.Errorf("\nOS信頼登録に失敗しました")
+			}
+			if !result.Firefox {
+				fmt.Println("\nFirefox への登録が完了したら、Firefoxを再起動してください。")
+			} else {
+				fmt.Println("\nFirefoxを再起動すると変更が反映されます。")
 			}
 			return nil
 		},
