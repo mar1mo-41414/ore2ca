@@ -24,6 +24,7 @@ func Execute() {
 func init() {
 	rootCmd.AddCommand(
 		newInitCmd(),
+		newImportCmd(),
 		newTrustCmd(),
 		newIssueCmd(),
 		newListCmd(),
