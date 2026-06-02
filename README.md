@@ -32,11 +32,15 @@ ore2ca issue localhost         # 証明書を発行する
 
 ## 動作確認済み環境
 
-| OS | Safari | Firefox | Chrome | Edge |
-|---|---|---|---|---|
-| macOS | ✅ | ✅ | ✅ | - |
-| Linux | - | ✅ | ✅ | - |
-| Windows | - | ✅ | ✅ | ✅ |
+| OS | Safari | Firefox | Chrome | Edge | Brave |
+|---|---|---|---|---|---|
+| macOS | ✅ | ✅ | ✅ | - | - |
+| Linux | - | ✅ | ✅ | - | - |
+| Windows | - | ✅ | ✅ | ✅ | - |
+| iOS | ✅ | ✅ | ✅ | - | ✅ |
+
+> **iOS** — `root.crt` をデバイスで開き、**設定 → 一般 → VPNとデバイス管理** でインストール後、  
+> **設定 → 一般 → 情報 → 証明書信頼設定** で CA をオンにすることで全ブラウザが対応します。
 
 ---
 
