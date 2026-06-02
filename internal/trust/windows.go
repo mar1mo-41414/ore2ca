@@ -33,13 +33,19 @@ func installPlatform(s *store.Store) (*Result, error) {
 	return r, nil
 }
 
-func uninstallPlatform(s *store.Store) error {
+func uninstallPlatform(s *store.Store) (*UninstallResult, error) {
+	r := &UninstallResult{}
 	if err := uninstallWindowsRoot(s); err != nil {
-		return err
+		r.OSErr = err
+	} else {
+		r.OS = true
 	}
-	// best-effort: ignore Firefox policy removal errors
-	_ = uninstallFirefoxPolicy(s.CACertPath())
-	return nil
+	if err := uninstallFirefoxPolicy(s.CACertPath()); err != nil {
+		r.FFErr = err
+	} else {
+		r.Firefox = true
+	}
+	return r, nil
 }
 
 // --- OS trust store ---

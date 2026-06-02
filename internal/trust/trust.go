@@ -21,12 +21,5 @@ func Install(s *store.Store) (*Result, error) {
 }
 
 func Uninstall(s *store.Store) (*UninstallResult, error) {
-	r := &UninstallResult{}
-	if err := uninstallPlatform(s); err != nil {
-		r.OSErr = err
-	} else {
-		r.OS = true
-	}
-	r.Firefox, r.FFErr = uninstallNSS()
-	return r, nil
+	return uninstallPlatform(s)
 }

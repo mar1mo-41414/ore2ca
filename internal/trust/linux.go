@@ -82,7 +82,8 @@ func writeFileRoot(dst string, data []byte) error {
 	return os.WriteFile(dst, data, 0644)
 }
 
-func uninstallPlatform(s *store.Store) error {
+func uninstallPlatform(s *store.Store) (*UninstallResult, error) {
+	r := &UninstallResult{}
 	paths := []string{
 		"/usr/local/share/ca-certificates/ore2ca.crt",
 		"/etc/pki/ca-trust/source/anchors/ore2ca.crt",
@@ -91,7 +92,9 @@ func uninstallPlatform(s *store.Store) error {
 	for _, p := range paths {
 		if _, err := os.Stat(p); err == nil {
 			if err := os.Remove(p); err != nil {
-				return err
+				r.OSErr = err
+				r.Firefox, r.FFErr = uninstallNSS()
+				return r, nil
 			}
 		}
 	}
@@ -99,5 +102,7 @@ func uninstallPlatform(s *store.Store) error {
 	exec.Command("sudo", "update-ca-certificates").Run()
 	exec.Command("sudo", "update-ca-trust", "extract").Run()
 	exec.Command("sudo", "trust", "extract-compat").Run()
-	return nil
+	r.OS = true
+	r.Firefox, r.FFErr = uninstallNSS()
+	return r, nil
 }

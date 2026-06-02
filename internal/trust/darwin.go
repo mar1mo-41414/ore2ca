@@ -29,11 +29,14 @@ func installPlatform(s *store.Store) (*Result, error) {
 	return r, nil
 }
 
-func uninstallPlatform(s *store.Store) error {
-	certPath := s.CACertPath()
-	cmd := exec.Command("sudo", "security", "remove-trusted-cert", "-d", certPath)
+func uninstallPlatform(s *store.Store) (*UninstallResult, error) {
+	r := &UninstallResult{}
+	cmd := exec.Command("sudo", "security", "remove-trusted-cert", "-d", s.CACertPath())
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("keychain remove: %w\n%s", err, out)
+		r.OSErr = fmt.Errorf("keychain remove: %w\n%s", err, out)
+	} else {
+		r.OS = true
 	}
-	return nil
+	r.Firefox, r.FFErr = uninstallNSS()
+	return r, nil
 }
