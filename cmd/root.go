@@ -1,0 +1,34 @@
+package cmd
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+var rootCmd = &cobra.Command{
+	Use:   "ore2ca",
+	Short: "俺俺CA - ローカル認証局 & HTTPS開発環境ツール",
+	Long: `ore2ca はローカル開発用の認証局（CA）を管理し、
+HTTPS証明書の発行・信頼登録・管理をワンストップで行うツールです。`,
+}
+
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func init() {
+	rootCmd.AddCommand(
+		newInitCmd(),
+		newTrustCmd(),
+		newIssueCmd(),
+		newListCmd(),
+		newRevokeCmd(),
+		newDeleteCmd(),
+		newDockerCmd(),
+	)
+}
