@@ -1,5 +1,8 @@
-localhost {
-    tls /certs/cert.crt /certs/cert.key
+{
+    default_sni localhost
+}
 
+localhost, https://192.168.11.8 {
+    tls /certs/localhost/cert.crt /certs/localhost/cert.key
     respond "Hello from Ore2CA! HTTPS is working. 🎉" 200
 }

@@ -18,7 +18,8 @@ import (
 	"github.com/mar1mo-41414/ore2ca/internal/store"
 )
 
-func Issue(domain string, cfg *config.Config, s *store.Store) (*store.CertMeta, error) {
+// Issue issues a certificate for domain with optional extra SANs.
+func Issue(domain string, cfg *config.Config, s *store.Store, extraSANs ...string) (*store.CertMeta, error) {
 	caCert, caKey, err := LoadCA(s)
 	if err != nil {
 		return nil, fmt.Errorf("load CA: %w", err)
@@ -51,6 +52,9 @@ func Issue(domain string, cfg *config.Config, s *store.Store) (*store.CertMeta, 
 	}
 
 	addSANs(template, domain)
+	for _, san := range extraSANs {
+		addSANs(template, san)
+	}
 
 	certDER, err := x509.CreateCertificate(rand.Reader, template, caCert, &key.PublicKey, caKey)
 	if err != nil {
@@ -93,19 +97,38 @@ func Issue(domain string, cfg *config.Config, s *store.Store) (*store.CertMeta, 
 
 func addSANs(tmpl *x509.Certificate, domain string) {
 	if ip := net.ParseIP(domain); ip != nil {
-		tmpl.IPAddresses = []net.IP{ip}
+		tmpl.IPAddresses = appendIPUniq(tmpl.IPAddresses, ip)
 		return
 	}
-	tmpl.DNSNames = []string{domain}
-	// localhost も IP SANs を追加
+	tmpl.DNSNames = appendStrUniq(tmpl.DNSNames, domain)
+	// localhost は IP SANs も追加
 	if domain == "localhost" {
-		tmpl.IPAddresses = []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")}
+		tmpl.IPAddresses = appendIPUniq(tmpl.IPAddresses, net.ParseIP("127.0.0.1"))
+		tmpl.IPAddresses = appendIPUniq(tmpl.IPAddresses, net.ParseIP("::1"))
 	}
 	// ワイルドカードの場合はベースドメインも追加
 	if strings.HasPrefix(domain, "*.") {
 		base := strings.TrimPrefix(domain, "*.")
-		tmpl.DNSNames = append(tmpl.DNSNames, base)
+		tmpl.DNSNames = appendStrUniq(tmpl.DNSNames, base)
 	}
+}
+
+func appendIPUniq(list []net.IP, ip net.IP) []net.IP {
+	for _, existing := range list {
+		if existing.Equal(ip) {
+			return list
+		}
+	}
+	return append(list, ip)
+}
+
+func appendStrUniq(list []string, s string) []string {
+	for _, existing := range list {
+		if existing == s {
+			return list
+		}
+	}
+	return append(list, s)
 }
 
 func nextSerial(s *store.Store) (int64, error) {

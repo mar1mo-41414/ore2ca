@@ -71,7 +71,9 @@ ore2ca trust
 ore2ca issue localhost
 ore2ca issue myapp.local
 ore2ca issue jellyfin.home.arpa
-ore2ca issue '*.home.arpa'       # ワイルドカードも対応
+ore2ca issue '*.home.arpa'                          # ワイルドカードも対応
+ore2ca issue localhost --san 192.168.11.8           # LAN IPも1枚の証明書に追加
+ore2ca issue myapp.local --san 10.0.0.5 --san 192.168.1.10  # 複数SAN指定可
 ```
 
 発行された証明書は `~/.ore2ca/certs/<domain>/` に保存されます：

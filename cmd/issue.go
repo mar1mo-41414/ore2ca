@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mar1mo-41414/ore2ca/internal/ca"
 	"github.com/mar1mo-41414/ore2ca/internal/config"
@@ -11,6 +12,7 @@ import (
 
 func newIssueCmd() *cobra.Command {
 	var validDays int
+	var extraSANs []string
 
 	cmd := &cobra.Command{
 		Use:   "issue <domain>",
@@ -20,7 +22,8 @@ func newIssueCmd() *cobra.Command {
 例:
   ore2ca issue localhost
   ore2ca issue jellyfin.home.arpa
-  ore2ca issue '*.home.arpa'`,
+  ore2ca issue '*.home.arpa'
+  ore2ca issue localhost --san 192.168.11.8`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			domain := args[0]
@@ -41,8 +44,12 @@ func newIssueCmd() *cobra.Command {
 				cfg.Certs.ValidDays = validDays
 			}
 
-			fmt.Printf("証明書を発行中: %s\n", domain)
-			meta, err := ca.Issue(domain, cfg, s)
+			if len(extraSANs) > 0 {
+				fmt.Printf("証明書を発行中: %s (追加SAN: %s)\n", domain, strings.Join(extraSANs, ", "))
+			} else {
+				fmt.Printf("証明書を発行中: %s\n", domain)
+			}
+			meta, err := ca.Issue(domain, cfg, s, extraSANs...)
 			if err != nil {
 				return fmt.Errorf("証明書発行失敗: %w", err)
 			}
@@ -59,5 +66,6 @@ func newIssueCmd() *cobra.Command {
 	}
 
 	cmd.Flags().IntVar(&validDays, "days", 0, "証明書の有効期間（日）")
+	cmd.Flags().StringArrayVar(&extraSANs, "san", nil, "追加SAN（複数指定可）例: --san 192.168.11.8 --san myapp.local")
 	return cmd
 }
