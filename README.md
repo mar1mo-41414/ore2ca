@@ -93,6 +93,7 @@ ore2ca issue '*.home.arpa'       # ワイルドカードも対応
 | `ore2ca init` | ローカル CA を作成 |
 | `ore2ca import --cert <path>` | 別PCで作成したCA証明書をインポート |
 | `ore2ca trust` | OS / Firefox に CA を信頼登録 |
+| `ore2ca untrust` | OS / Firefox から CA の信頼登録を削除 |
 | `ore2ca issue <domain>` | サーバ証明書を発行 |
 | `ore2ca list` | 発行済み証明書の一覧 |
 | `ore2ca revoke <id>` | 証明書を失効 |
@@ -167,6 +168,18 @@ ore2ca issue jellyfin.home.arpa
 ore2ca issue '*.home.arpa'
 # *.home.arpa と home.arpa の両方をカバー
 ```
+
+### 開発終了時にクリーンアップする
+
+信頼登録を取り消してシステムをクリーンな状態に戻せます。
+
+```bash
+ore2ca untrust   # OS・Firefox の信頼ストアから CA を削除
+```
+
+CA証明書・発行済み証明書のファイルは残るので、再度 `ore2ca trust` で復元できます。
+
+---
 
 ### テスト端末に CA を信頼登録する
 

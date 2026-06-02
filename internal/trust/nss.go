@@ -60,6 +60,31 @@ func findNSSDBs() []string {
 	return dirs
 }
 
+func uninstallNSS() (bool, error) {
+	certutil, err := exec.LookPath("certutil")
+	if err != nil {
+		return false, certutilNotFoundError()
+	}
+	dbs := findNSSDBs()
+	if len(dbs) == 0 {
+		return false, fmt.Errorf("Firefox NSS プロファイルが見つかりません")
+	}
+	var lastErr error
+	ok := 0
+	for _, db := range dbs {
+		cmd := exec.Command(certutil, "-D", "-d", db, "-n", "Ore2CA")
+		if out, err := cmd.CombinedOutput(); err != nil {
+			lastErr = fmt.Errorf("certutil %s: %w\n%s", db, err, out)
+		} else {
+			ok++
+		}
+	}
+	if ok == 0 {
+		return false, lastErr
+	}
+	return true, nil
+}
+
 func certutilNotFoundError() error {
 	switch runtime.GOOS {
 	case "darwin":
