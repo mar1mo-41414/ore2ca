@@ -38,9 +38,12 @@ ore2ca issue localhost         # 証明書を発行する
 | Linux | - | ✅ | ✅ | - | - |
 | Windows | - | ✅ | ✅ | ✅ | - |
 | iOS | ✅ | ✅ | ✅ | - | ✅ |
+| Android | - | ✅ | ✅ | - | - |
 
 > **iOS** — `root.crt` をデバイスで開き、**設定 → 一般 → VPNとデバイス管理** でインストール後、  
 > **設定 → 一般 → 情報 → 証明書信頼設定** で CA をオンにすることで全ブラウザが対応します。
+
+> **Android** — まずシステムに CA を登録し、Firefox は追加設定が必要です。詳細は[下記](#android)を参照してください。
 
 ---
 
@@ -319,6 +322,35 @@ CA証明書（`~/.ore2ca/ca/root.crt`）をコピーしてインポートする�
 ore2ca import --cert root.crt --trust
 # ブラウザを再起動すれば完了
 ```
+
+---
+
+### Android での信頼登録 <a id="android"></a>
+
+**Chrome（システム CA を登録するだけで動作）**
+
+1. `root.crt` を Android デバイスに転送する
+2. **設定 → セキュリティ → 暗号化と認証情報 → 証明書のインストール → CA 証明書** を選択
+3. `root.crt` を選んでインストール
+4. Chrome を再起動 → 鍵マーク表示を確認
+
+> Android のメニュー名はバージョン・機種により異なります（「信頼できる認証情報」「ユーザー証明書」など）。
+
+**Firefox for Android（追加設定が必要）**
+
+Android の Firefox はデフォルトではシステム証明書ストアを参照しません。  
+CA をシステムに登録した後、以下の手順で Firefox に読み込ませます。
+
+1. Firefox のアドレスバーに以下を入力して開く：
+   ```
+   chrome://geckoview/content/config.xhtml
+   ```
+2. 検索欄に **`security.enterprise_roots.enabled`** と入力
+3. 値を **`false` → `true`** に変更
+4. Firefox を再起動 → 鍵マーク表示を確認
+
+> `about:config` は最新の Firefox for Android では動作しません。  
+> `chrome://geckoview/content/config.xhtml` が現在の正しい設定ページです。
 
 ---
 
