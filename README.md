@@ -1,6 +1,6 @@
 # OpenSSLの証明書呪文を二度と覚えたくない人へ
 
-![version](https://img.shields.io/badge/version-v1.0-blue)
+![version](https://img.shields.io/badge/version-v1.2-blue)
 ![Go](https://img.shields.io/badge/Go-1.22+-00ADD8)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
@@ -31,6 +31,8 @@ ore2ca issue localhost         # 証明書を発行する
 ---
 
 ## 動作確認済み環境
+
+macOS・Linux・Windows・iOS・Android の主要ブラウザすべてで鍵マーク・警告ゼロを確認済みです。
 
 | OS | Safari | Firefox | Chrome | Edge | Brave |
 |---|---|---|---|---|---|
