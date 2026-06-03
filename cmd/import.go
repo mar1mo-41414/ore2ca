@@ -69,24 +69,14 @@ func newImportCmd() *cobra.Command {
 			if doTrust {
 				fmt.Println()
 				fmt.Println("CAをシステムの信頼ストアに登録中...")
-				result, err := trust.Install(s)
+				result, err := trust.Install(s, trust.Options{})
 				if err != nil {
 					return err
 				}
-				if result.OS {
-					fmt.Println("✓ OS信頼ストア: 登録完了")
-				} else {
-					fmt.Printf("✗ OS信頼ストア: 失敗 - %v\n", result.OSErr)
+				printTrustResult(result)
+				if err := trustExitError(result); err != nil {
+					return err
 				}
-				if result.Firefox {
-					fmt.Println("✓ Firefox NSS: 登録完了")
-				} else if result.FFErr != nil {
-					fmt.Printf("✗ Firefox NSS: 登録失敗\n\n%v\n", result.FFErr)
-				}
-				if !result.OS {
-					return fmt.Errorf("\nOS信頼登録に失敗しました")
-				}
-				fmt.Println("\nブラウザを再起動すると変更が反映されます。")
 			} else {
 				fmt.Println("\n次のステップ: ore2ca trust  # OSに信頼登録")
 			}

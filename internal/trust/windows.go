@@ -16,35 +16,53 @@ import (
 // powershellUTF8Prefix forces UTF-8 output in PowerShell to reduce garbled text.
 const powershellUTF8Prefix = `$OutputEncoding = [System.Text.Encoding]::UTF8; [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; `
 
-func installPlatform(s *store.Store) (*Result, error) {
+func installPlatform(s *store.Store, opts Options) (*Result, error) {
 	r := &Result{}
+
 	if err := installWindowsRoot(s.CACertPath()); err != nil {
 		r.OSErr = err
 	} else {
 		r.OS = true
 	}
-	// Modern Firefox (v110+) no longer ships certutil.exe.
-	// Use Firefox Enterprise Policy instead.
-	if err := installFirefoxPolicy(s.CACertPath()); err != nil {
-		r.FFErr = err
+
+	// Firefox via Enterprise Policy (Windows Chrome uses the OS cert store)
+	if shouldDoFirefox(opts) {
+		if err := installFirefoxPolicy(s.CACertPath()); err != nil {
+			r.Firefox = BrowserResult{Err: err}
+		} else {
+			r.Firefox = BrowserResult{Registered: true}
+		}
 	} else {
-		r.Firefox = true
+		r.Firefox = BrowserResult{Skipped: true}
 	}
+
+	// Chrome on Windows uses the OS cert store → already covered above
+	r.Chrome = BrowserResult{Skipped: true}
+
 	return r, nil
 }
 
-func uninstallPlatform(s *store.Store) (*UninstallResult, error) {
+func uninstallPlatform(s *store.Store, opts Options) (*UninstallResult, error) {
 	r := &UninstallResult{}
+
 	if err := uninstallWindowsRoot(s); err != nil {
 		r.OSErr = err
 	} else {
 		r.OS = true
 	}
-	if err := uninstallFirefoxPolicy(s.CACertPath()); err != nil {
-		r.FFErr = err
+
+	if shouldDoFirefox(opts) {
+		if err := uninstallFirefoxPolicy(s.CACertPath()); err != nil {
+			r.Firefox = BrowserResult{Err: err}
+		} else {
+			r.Firefox = BrowserResult{Registered: true}
+		}
 	} else {
-		r.Firefox = true
+		r.Firefox = BrowserResult{Skipped: true}
 	}
+
+	r.Chrome = BrowserResult{Skipped: true}
+
 	return r, nil
 }
 
@@ -69,7 +87,6 @@ func installWindowsRoot(certPath string) error {
 }
 
 func uninstallWindowsRoot(s *store.Store) error {
-	// Read CN from cert to identify it in the store
 	certPath := s.CACertPath()
 	cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command",
 		powershellUTF8Prefix+fmt.Sprintf(

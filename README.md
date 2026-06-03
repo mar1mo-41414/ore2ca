@@ -111,6 +111,16 @@ ore2ca init --cn "My Local CA" --org "MyCompany" --country JP --years 10
 ore2ca trust
 ```
 
+インストール済みのブラウザを自動検出し、見つかったブラウザにのみ登録します。  
+Firefox が入っていなければ Firefox の処理は静かにスキップされます。
+
+特定のブラウザだけを登録したい場合は `--firefox` / `--chrome` を指定します：
+
+```bash
+ore2ca trust --firefox   # OS + Firefox のみ
+ore2ca trust --chrome    # OS + Chrome のみ（Linux で有効）
+```
+
 > **macOS** — Firefox への登録には `certutil` が必要です：
 > ```bash
 > brew install nss && ore2ca trust

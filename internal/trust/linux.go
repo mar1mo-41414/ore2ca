@@ -11,7 +11,7 @@ import (
 	"github.com/mar1mo-41414/ore2ca/internal/store"
 )
 
-func installPlatform(s *store.Store) (*Result, error) {
+func installPlatform(s *store.Store, opts Options) (*Result, error) {
 	r := &Result{}
 	certPath := s.CACertPath()
 
@@ -21,7 +21,22 @@ func installPlatform(s *store.Store) (*Result, error) {
 		r.OS = true
 	}
 
-	r.Firefox, r.FFErr = installNSS(certPath)
+	// Firefox NSS
+	if shouldDoFirefox(opts) {
+		ok, err := installNSSForFirefox(certPath)
+		r.Firefox = BrowserResult{Registered: ok, Err: err}
+	} else {
+		r.Firefox = BrowserResult{Skipped: true}
+	}
+
+	// Chrome/Chromium/Brave/Edge NSS (Linux only)
+	if shouldDoChrome(opts) {
+		ok, err := installNSSForChrome(certPath)
+		r.Chrome = BrowserResult{Registered: ok, Err: err}
+	} else {
+		r.Chrome = BrowserResult{Skipped: true}
+	}
+
 	return r, nil
 }
 
@@ -82,7 +97,7 @@ func writeFileRoot(dst string, data []byte) error {
 	return os.WriteFile(dst, data, 0644)
 }
 
-func uninstallPlatform(s *store.Store) (*UninstallResult, error) {
+func uninstallPlatform(s *store.Store, opts Options) (*UninstallResult, error) {
 	r := &UninstallResult{}
 	paths := []string{
 		"/usr/local/share/ca-certificates/ore2ca.crt",
@@ -93,16 +108,27 @@ func uninstallPlatform(s *store.Store) (*UninstallResult, error) {
 		if _, err := os.Stat(p); err == nil {
 			if err := os.Remove(p); err != nil {
 				r.OSErr = err
-				r.Firefox, r.FFErr = uninstallNSS()
-				return r, nil
 			}
 		}
 	}
-	// best-effort update
 	exec.Command("sudo", "update-ca-certificates").Run()
 	exec.Command("sudo", "update-ca-trust", "extract").Run()
 	exec.Command("sudo", "trust", "extract-compat").Run()
 	r.OS = true
-	r.Firefox, r.FFErr = uninstallNSS()
+
+	if shouldDoFirefox(opts) {
+		ok, err := uninstallNSSForFirefox()
+		r.Firefox = BrowserResult{Registered: ok, Err: err}
+	} else {
+		r.Firefox = BrowserResult{Skipped: true}
+	}
+
+	if shouldDoChrome(opts) {
+		ok, err := uninstallNSSForChrome()
+		r.Chrome = BrowserResult{Registered: ok, Err: err}
+	} else {
+		r.Chrome = BrowserResult{Skipped: true}
+	}
+
 	return r, nil
 }
