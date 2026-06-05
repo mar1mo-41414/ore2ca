@@ -184,6 +184,7 @@ ore2ca issue myapp.local --san 10.0.0.5 --san 192.168.1.10  # 複数SAN指定可
 | `ore2ca docker caddy` | Caddy 向け Docker Compose 設定例を出力 |
 | `ore2ca docker traefik` | Traefik 向け Docker Compose 設定例を出力 |
 | `ore2ca web` | ローカル管理 Web UI を起動（デフォルト: `http://localhost:8080`） |
+| `ore2ca completion` | シェル補完スクリプトを生成 |
 
 ---
 
@@ -353,6 +354,30 @@ CA をシステムに登録した後、以下の手順で Firefox に読み込�
 
 > `about:config` は最新の Firefox for Android では動作しません。  
 > `chrome://geckoview/content/config.xhtml` が現在の正しい設定ページです。
+
+---
+
+## シェル補完
+
+```bash
+# Bash（その場で有効）
+source <(ore2ca completion bash)
+
+# Bash（永続化）
+# Linux:
+ore2ca completion bash > /etc/bash_completion.d/ore2ca
+# macOS:
+ore2ca completion bash > $(brew --prefix)/etc/bash_completion.d/ore2ca
+
+# Zsh（その場で有効）
+source <(ore2ca completion zsh)
+
+# Fish
+ore2ca completion fish | source
+
+# PowerShell
+ore2ca completion powershell >> $PROFILE
+```
 
 ---
 

@@ -23,6 +23,10 @@ func Execute(version string) {
 }
 
 func init() {
+	// cobra のデフォルト completion コマンドを無効化し、
+	// インストール手順つきのカスタム版に差し替える
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+
 	rootCmd.AddCommand(
 		newInitCmd(),
 		newImportCmd(),
@@ -37,5 +41,6 @@ func init() {
 		newDeleteCmd(),
 		newDockerCmd(),
 		newWebCmd(),
+		newCompletionCmd(rootCmd),
 	)
 }
