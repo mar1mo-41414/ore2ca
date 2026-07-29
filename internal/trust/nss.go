@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/mar1mo-41414/ore2ca/internal/config"
 )
@@ -110,9 +111,10 @@ func installNSSDBs(certPath string, dbs []string) (bool, error) {
 	var lastErr error
 	ok := 0
 	for _, db := range dbs {
-		cmd := exec.Command(certutil, "-A", "-d", db, "-t", "CT,,", "-n", "Ore2CA", "-i", certPath)
+		// -f /dev/null: パスワードなしDBは正常動作、プロンプトループを防ぐ
+		cmd := exec.Command(certutil, "-A", "-d", db, "-t", "CT,,", "-n", "Ore2CA", "-i", certPath, "-f", "/dev/null")
 		if out, err := cmd.CombinedOutput(); err != nil {
-			lastErr = fmt.Errorf("certutil %s: %w\n%s", db, err, out)
+			lastErr = nssErr(db, err, out)
 		} else {
 			ok++
 		}
@@ -131,9 +133,9 @@ func uninstallNSSDBs(dbs []string) (bool, error) {
 	var lastErr error
 	ok := 0
 	for _, db := range dbs {
-		cmd := exec.Command(certutil, "-D", "-d", db, "-n", "Ore2CA")
+		cmd := exec.Command(certutil, "-D", "-d", db, "-n", "Ore2CA", "-f", "/dev/null")
 		if out, err := cmd.CombinedOutput(); err != nil {
-			lastErr = fmt.Errorf("certutil %s: %w\n%s", db, err, out)
+			lastErr = nssErr(db, err, out)
 		} else {
 			ok++
 		}
@@ -142,6 +144,17 @@ func uninstallNSSDBs(dbs []string) (bool, error) {
 		return false, lastErr
 	}
 	return true, nil
+}
+
+// nssErr wraps a certutil error, providing a user-friendly message when the
+// NSS database is locked by a Primary Password (Firefox master password).
+func nssErr(db string, err error, out []byte) error {
+	msg := string(out)
+	if strings.Contains(msg, "SEC_ERROR_TOKEN_NOT_LOGGED_IN") {
+		return fmt.Errorf("certutil %s: Firefox Primary Password（マスターパスワード）が設定されているためスキップ\n"+
+			"  → Firefox の「設定 → プライバシーとセキュリティ → マスターパスワード」を解除するか、手動で登録してください", db)
+	}
+	return fmt.Errorf("certutil %s: %w\n%s", db, err, out)
 }
 
 // installNSSForFirefox installs into Firefox-only NSS databases.
