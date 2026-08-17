@@ -155,7 +155,7 @@ ore2ca issue localhost
 ore2ca issue myapp.local
 ore2ca issue jellyfin.home.arpa
 ore2ca issue '*.home.arpa'                          # ワイルドカードも対応
-ore2ca issue localhost --san 192.168.11.8           # LAN IPも1枚の証明書に追加
+ore2ca issue localhost --san 192.168.1.1            # LAN IPも1枚の証明書に追加
 ore2ca issue myapp.local --san 10.0.0.5 --san 192.168.1.10  # 複数SAN指定可
 ```
 
@@ -209,7 +209,7 @@ ore2ca docker caddy
 
 ```bash
 # localhost と LAN IP を1枚の証明書にまとめる
-ore2ca issue localhost --san 192.168.11.8
+ore2ca issue localhost --san 192.168.1.1
 ```
 
 Caddyfile に `default_sni` を設定することで、IP 直アクセス（SNI なし接続）にも対応できます：
@@ -219,11 +219,39 @@ Caddyfile に `default_sni` を設定することで、IP 直アクセス（SNI 
     default_sni localhost
 }
 
-localhost, https://192.168.11.8 {
+localhost, https://192.168.1.1 {
     tls /path/to/cert.crt /path/to/cert.key
     ...
 }
 ```
+
+---
+
+## テスト環境（testenv）
+
+`testenv/` ディレクトリに Caddy を使った最小の HTTPS テスト環境が同梱されています。  
+ore2ca で発行した証明書をすぐブラウザで確認したいときに使えます。
+
+```bash
+# 1. localhost の証明書を発行（初回のみ）
+ore2ca issue localhost
+
+# 2. テスト環境を起動
+cd testenv
+docker compose up
+
+# 3. ブラウザで https://localhost を開いて鍵マークを確認
+```
+
+LAN 内の別端末から確認したい場合は `Caddyfile` の IP アドレスを自分の環境に合わせて編集してください：
+
+```
+localhost, https://192.168.1.x {
+    ...
+}
+```
+
+> Docker と `ore2ca trust`（CA の信頼登録）が済んでいれば、起動してすぐ鍵マークが表示されます。
 
 ---
 
