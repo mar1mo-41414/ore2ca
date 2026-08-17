@@ -44,7 +44,7 @@ macOS・Linux・Windows・iOS・Android の主要ブラウザすべてで鍵マ�
 | Android | - | ✅ | ✅ | - | - |
 | ChromeOS Flex | - | - | ✅ | - | - |
 
-> macOS は Apple Silicon（macOS 15）・Intel（macOS 12 Monterey）の両方で確認済みです。
+> macOS は Apple Silicon（macOS 27）・Intel（macOS 12 Monterey）の両方で確認済みです。
 
 > **iOS** — `root.crt` をデバイスで開き、**設定 → 一般 → VPNとデバイス管理** でインストール後、  
 > **設定 → 一般 → 情報 → 証明書信頼設定** で CA をオンにすることで全ブラウザが対応します。
