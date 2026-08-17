@@ -35,6 +35,10 @@ jobs:
             arch: amd64
             suffix: ".exe"
             archive: zip
+          - os: windows
+            arch: arm64
+            suffix: ".exe"
+            archive: zip
 
     steps:
       - name: Checkout

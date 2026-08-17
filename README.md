@@ -1,6 +1,6 @@
 # OpenSSLの証明書呪文を二度と覚えたくない人へ
 
-![version](https://img.shields.io/badge/version-v1.2-blue)
+![version](https://img.shields.io/badge/version-v1.3-blue)
 ![Go](https://img.shields.io/badge/Go-1.22+-00ADD8)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
@@ -68,6 +68,7 @@ macOS・Linux・Windows・iOS・Android の主要ブラウザすべてで鍵マ�
 | `ore2ca_vX.Y_linux_amd64.tar.gz` | Linux x86_64 |
 | `ore2ca_vX.Y_linux_arm64.tar.gz` | Linux ARM64 |
 | `ore2ca_vX.Y_windows_amd64.zip` | Windows x64 |
+| `ore2ca_vX.Y_windows_arm64.zip` | Windows ARM64 |
 
 ### go install
 
