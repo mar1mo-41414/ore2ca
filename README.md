@@ -39,9 +39,10 @@ macOS・Linux・Windows・iOS・Android の主要ブラウザすべてで鍵マ�
 | macOS（Apple Silicon・Intel） | ✅ | ✅ | ✅ | - | - |
 | Linux x86_64 | - | ✅ | ✅ | - | - |
 | Linux ARM64（Raspberry Pi） | - | ✅ | - | - | - |
-| Windows | - | ✅ | ✅ | ✅ | - |
+| Windows（x64・ARM） | - | ✅ | ✅ | ✅ | - |
 | iOS | ✅ | ✅ | ✅ | - | ✅ |
 | Android | - | ✅ | ✅ | - | - |
+| ChromeOS Flex | - | - | ✅ | - | - |
 
 > macOS は Apple Silicon（macOS 15）・Intel（macOS 12 Monterey）の両方で確認済みです。
 
@@ -49,6 +50,8 @@ macOS・Linux・Windows・iOS・Android の主要ブラウザすべてで鍵マ�
 > **設定 → 一般 → 情報 → 証明書信頼設定** で CA をオンにすることで全ブラウザが対応します。
 
 > **Android** — まずシステムに CA を登録し、Firefox は追加設定が必要です。詳細は[下記](#android)を参照してください。
+
+> **ChromeOS Flex** — Linux 環境（Crostini）で ore2ca を使い、Chrome への CA 登録は手動で行います。詳細は[下記](#chromeos)を参照してください。
 
 ---
 
@@ -357,6 +360,36 @@ CA をシステムに登録した後、以下の手順で Firefox に読み込�
 
 > `about:config` は最新の Firefox for Android では動作しません。  
 > `chrome://geckoview/content/config.xhtml` が現在の正しい設定ページです。
+
+---
+
+### ChromeOS Flex での信頼登録 <a id="chromeos"></a>
+
+ChromeOS の Chrome は OS のシステム証明書ストアを使わず、独自の証明書管理画面から登録します。
+
+**1. CA 証明書を Linux 環境で用意する**
+
+```bash
+# Linux 環境（Crostini）内で実行
+ore2ca init
+ore2ca trust          # Linux 環境のシステム・Firefox に登録
+cp ~/.ore2ca/ca/root.crt ~/   # ChromeOS 側から参照しやすい場所にコピー
+```
+
+**2. ChromeOS の Chrome に CA を登録する**
+
+1. Chrome のアドレスバーに `chrome://settings/certificates` を入力して開く
+2. **「認証局」タブ**（ローカル証明書）を選択
+3. **「インポート」** をクリック
+4. ファイル選択ダイアログで **「Linux ファイル」** タブを開き、`root.crt` を選択
+5. 「この認証局によるウェブサイトの識別を信頼する」にチェックを入れて OK
+6. Chrome を再起動
+
+**3. 接続確認**
+
+Linux 環境で Caddy など HTTPS サーバを起動し、`https://<Linux環境のIPアドレス>` にアクセスして鍵マークを確認します。
+
+> Linux 環境の IP アドレスは `ip addr` コマンドで確認できます（通常 `100.115.92.x` 帯）。
 
 ---
 
