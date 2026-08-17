@@ -227,7 +227,7 @@ localhost, https://192.168.11.8 {
 |---|---|---|---|
 | macOS | ✅ Keychain | ✅（要 `brew install nss`） | ✅ |
 | Linux（Debian/Ubuntu） | ✅ | ✅（要 `apt install libnss3-tools`） | ✅ |
-| Linux（RHEL/Fedora） | ✅ | ✅（要 `dnf install nss-tools`） | ✅ |
+| Linux（RHEL/Fedora/AlmaLinux） | ✅ | ✅（要 `dnf install nss-tools`） | ✅ |
 | Linux（Arch） | ✅ | ✅（要 `pacman -S nss`） | ✅ |
 | Windows | ✅ PowerShell | ✅ Enterprise Policy 方式 | ✅ |
 
