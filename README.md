@@ -57,7 +57,13 @@ macOS・Linux・Windows・iOS・Android の主要ブラウザすべてで鍵マ�
 
 ## インストール
 
-### バイナリをダウンロード（推奨）
+### Windows（winget）
+
+```powershell
+winget install mar1mo-41414.ore2ca
+```
+
+### バイナリをダウンロード
 
 [Releases ページ](https://github.com/mar1mo-41414/ore2ca/releases/latest) から OS / アーキテクチャに合ったアーカイブをダウンロードして展開し、`PATH` の通ったディレクトリに置くだけです。
 
