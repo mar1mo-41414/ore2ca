@@ -1,6 +1,8 @@
 # OpenSSLの証明書呪文を二度と覚えたくない人へ
 
-![version](https://img.shields.io/badge/version-v1.3-blue)
+[English README →](README-EN.md)
+
+![version](https://img.shields.io/badge/version-v1.4-blue)
 ![Go](https://img.shields.io/badge/Go-1.22+-00ADD8)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
@@ -121,6 +123,7 @@ ore2ca init --cn "My Local CA" --org "MyCompany" --country JP --years 10
 | `--org` | `Ore2CA` | 組織名 |
 | `--country` | `JP` | 国コード（2文字） |
 | `--years` | `10` | CA 証明書の有効期間（年） |
+| `--cert-days` | `825` | サーバ証明書のデフォルト有効期間（日） |
 | `--force` | - | 既存の CA を上書きする |
 
 ### 2. OS とブラウザに信頼登録する
@@ -197,6 +200,11 @@ ore2ca issue myapp.local --san 10.0.0.5 --san 192.168.1.10  # 複数SAN指定可
 | `ore2ca docker caddy` | Caddy 向け Docker Compose 設定例を出力 |
 | `ore2ca docker traefik` | Traefik 向け Docker Compose 設定例を出力 |
 | `ore2ca web` | ローカル管理 Web UI を起動（デフォルト: `http://localhost:8080`） |
+| `ore2ca serve` | モバイル端末向けに CA を LAN 配信（QRコード表示） |
+| `ore2ca config show` | 現在の設定を表示 |
+| `ore2ca config set cert-days <n>` | サーバ証明書のデフォルト有効期間を変更 |
+| `ore2ca uninstall` | OS / ブラウザの信頼登録を削除（`untrust` と同等） |
+| `ore2ca uninstall --purge` | 信頼解除 + `~/.ore2ca` を完全削除 |
 | `ore2ca completion` | シェル補完スクリプトを生成 |
 
 ---
@@ -328,6 +336,23 @@ ore2ca export <id> --legacy               # Java 8 以前など旧ツール向�
 
 ---
 
+### デフォルト有効期間を変更する
+
+`ore2ca issue` を `--days` なしで使ったときに適用される有効期間（デフォルト 825 日）を変更できます。
+
+```bash
+ore2ca config show              # 現在の設定を確認
+ore2ca config set cert-days 365 # 次回以降の発行を 365 日に変更
+```
+
+CA 作成時に初期値を指定することもできます：
+
+```bash
+ore2ca init --cert-days 365
+```
+
+---
+
 ### 証明書の詳細を確認する
 
 ```bash
@@ -351,10 +376,13 @@ ore2ca renew <id> --days 90       # 有効期間を変えて再発行
 信頼登録を取り消してシステムをクリーンな状態に戻せます。
 
 ```bash
-ore2ca untrust   # OS・ブラウザの信頼ストアから CA を削除
+ore2ca untrust              # OS・ブラウザの信頼ストアから CA を削除
+# または
+ore2ca uninstall            # untrust と同等
+ore2ca uninstall --purge    # 信頼解除 + ~/.ore2ca を完全削除（-y でスキップ可能）
 ```
 
-CA証明書・発行済み証明書のファイルは残るので、再度 `ore2ca trust` で復元できます。
+`--purge` なしでは CA証明書・発行済み証明書のファイルは残るので、再度 `ore2ca trust` で復元できます。
 
 ### テスト端末に CA を信頼登録する
 
@@ -366,6 +394,32 @@ CA証明書（`~/.ore2ca/ca/root.crt`）をコピーしてインポートする�
 ore2ca import --cert root.crt --trust
 # ブラウザを再起動すれば完了
 ```
+
+### スマートフォンへ簡単配布（ore2ca serve）
+
+手動コピーが面倒な場合は、`ore2ca serve` を使うとQRコード経由でワンタップ配布できます。
+
+```bash
+# 開発機で実行
+ore2ca serve
+```
+
+起動すると LAN の IP アドレスが表示され、ターミナルにQRコードが描画されます。  
+スマートフォンのカメラでQRコードを読み取り、表示されたページから証明書をダウンロードしてください。
+
+- **iOS** — 「構成プロファイル (.mobileconfig) をインストール」から設定アプリ経由でインストールできます。
+  インストール後、**設定 → 一般 → 情報 → 証明書信頼設定** で CA をオンにする手順は引き続き必要です。
+- **Android** — 「CA 証明書 (.crt) をダウンロード」から証明書をインポートしてください。
+
+```
+# ポートを変更したい場合
+ore2ca serve --port 8888
+
+# 1回ダウンロードされたら自動終了
+ore2ca serve --once
+```
+
+> ⚠ `ore2ca serve` は LAN 内に CA 証明書を公開します。信頼できないネットワーク上では実行しないでください。
 
 ---
 
@@ -475,7 +529,7 @@ ore2ca とは独立したバイナリで、ore2ca-ocsp を起動しておくと
 
 ## 技術仕様
 
-- **言語**: Go 1.22+
+- **言語**: Go 1.25+
 - **暗号**: ECDSA P-256（CA・サーバ証明書ともに）
 - **依存**: OpenSSL 不使用。`crypto/x509` 標準ライブラリのみ。
 - **証明書有効期間**: CA=10年、サーバ証明書=825日（デフォルト）
