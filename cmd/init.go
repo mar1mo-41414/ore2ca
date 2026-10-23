@@ -15,6 +15,7 @@ func newInitCmd() *cobra.Command {
 		organization string
 		country      string
 		validYears   int
+		certDays     int
 		force        bool
 	)
 
@@ -39,6 +40,9 @@ func newInitCmd() *cobra.Command {
 			}
 			if validYears > 0 {
 				cfg.CA.ValidYears = validYears
+			}
+			if certDays > 0 {
+				cfg.Certs.ValidDays = certDays
 			}
 
 			s, err := store.New()
@@ -72,6 +76,7 @@ func newInitCmd() *cobra.Command {
 	cmd.Flags().StringVar(&organization, "org", "", "CA の組織名")
 	cmd.Flags().StringVar(&country, "country", "", "CA の国コード (例: JP)")
 	cmd.Flags().IntVar(&validYears, "years", 0, "CA 証明書の有効期間（年）")
+	cmd.Flags().IntVar(&certDays, "cert-days", 0, "サーバ証明書のデフォルト有効期間（日）")
 	cmd.Flags().BoolVar(&force, "force", false, "既存のCAを上書き")
 
 	return cmd
