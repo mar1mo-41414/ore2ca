@@ -41,6 +41,9 @@ func init() {
 		newDeleteCmd(),
 		newDockerCmd(),
 		newWebCmd(),
+		newServeCmd(),
+		newConfigCmd(),
+		newUninstallCmd(),
 		newCompletionCmd(rootCmd),
 	)
 }
